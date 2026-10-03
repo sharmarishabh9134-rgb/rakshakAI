@@ -1,0 +1,12 @@
+{
+  "last_verified": "2026-10-03",
+  "resources": [
+    {"id":"cyber-report","authority":"National Cyber Crime Reporting Portal","category":"Cyber Crime","description":"Government of India portal for reporting cybercrime. If cyber financial fraud has occurred, call 1930 immediately and report online.","phone":"1930","availability":"24×7 for cyber financial fraud","website":"https://www.cybercrime.gov.in/","languages":["English","Hindi"]},
+    {"id":"cyber-suspect","authority":"Cyber Crime Suspect Reporting Facility","category":"Cyber Crime","description":"Report suspicious website URLs, WhatsApp numbers, Telegram handles, phone numbers, email IDs, SMS numbers or headers, and social media URLs.","phone":"","availability":"Online","website":"https://cybercrime.gov.in/webform/cyber_suspect.aspx","languages":["English","Hindi"]},
+    {"id":"sebi","authority":"Securities and Exchange Board of India (SEBI)","category":"Investor Grievance","description":"Official regulator information and securities-market investor assistance.","phone":"","availability":"Official website","website":"https://www.sebi.gov.in/","languages":[]},
+    {"id":"sebi-investor","authority":"SEBI Investor Website","category":"Investor Education","description":"Investor education, awareness, and official investor resources.","phone":"","availability":"Online","website":"https://investor.sebi.gov.in/","languages":[]},
+    {"id":"scores","authority":"SEBI SCORES","category":"Investor Grievance","description":"Online grievance redressal facilitation for eligible securities-market complaints against SEBI-regulated entities.","phone":"","availability":"Online","website":"https://scores.sebi.gov.in/","languages":[]},
+    {"id":"sebi-helpline","authority":"SEBI Investor Toll-Free Helpline","category":"Investor Grievance","description":"General assistance and guidance on securities-market matters and investor grievances.","phone":"1800 266 7575; 1800 22 7575","availability":"9:00 AM–6:00 PM; Sundays and declared Maharashtra public holidays excluded","website":"https://scores.sebi.gov.in/en/tollfree","languages":["English","Hindi","Marathi","Gujarati","Tamil","Bengali","Telugu","Kannada"]},
+    {"id":"112","authority":"Emergency Response Support System (ERSS)","category":"Emergency Police","description":"India’s nationwide emergency number for immediate police, fire, ambulance, and other emergency assistance.","phone":"112","availability":"24×7","website":"https://112.gov.in/","languages":[]}
+  ]
+}

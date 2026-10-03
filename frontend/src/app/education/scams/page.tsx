@@ -1,0 +1,6 @@
+'use client';
+import Link from 'next/link';
+import {useEffect,useState} from 'react';
+import {ArrowRight,CircleAlert} from 'lucide-react';
+const API=process.env.NEXT_PUBLIC_API_URL||'http://localhost:8000';
+export default function Scams(){const [lessons,setLessons]=useState<any[]>([]);useEffect(()=>{fetch(`${API}/api/education`).then(r=>r.json()).then(setLessons).catch(()=>setLessons([]))},[]);return <main className="mx-auto max-w-[1320px] px-5 py-10 lg:px-8 lg:py-14"><div className="max-w-2xl"><div className="eyebrow">Safety center</div><h1 className="mt-2 text-3xl font-extrabold tracking-[-.035em] sm:text-4xl">Common scam patterns</h1><p className="mt-3 text-sm leading-6 text-[var(--muted)]">Ten educational lessons with synthetic examples. These categories are not findings about any particular person or organization.</p></div><div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{lessons.map(x=><Link className="feature-card" href={`/education/lesson/${x.slug}`} key={x.slug}><span className="icon-tile"><CircleAlert size={19}/></span><h2 className="mt-5 text-base font-extrabold">{x.title}</h2><p className="mt-2 text-sm leading-6 text-[var(--muted)]">{x.simple_explanation}</p><span className="mt-4 inline-flex items-center gap-1 text-xs font-bold text-[var(--accent)]">Open lesson <ArrowRight size={14}/></span></Link>)}</div></main>}

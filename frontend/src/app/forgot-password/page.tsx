@@ -1,0 +1,4 @@
+import Link from 'next/link';
+import {ArrowLeft,Mail} from 'lucide-react';
+import {AuthFrame} from '@/components/AuthFrame';
+export default function ForgotPassword(){return <AuthFrame eyebrow="Account recovery" title="Password reset is unavailable" subtitle="This hackathon build has no email delivery or reset-token service, so it cannot change your password here."><div className="mt-8 rounded-xl border border-[var(--line)] bg-[var(--surface)] p-5"><Mail className="text-[var(--accent)]" size={22}/><p className="mt-4 text-sm leading-6 text-[var(--muted)]">Contact the project administrator through a trusted channel for help with a demo account. Never share your existing password or OTP.</p><Link className="btn-primary mt-5" href="/login"><ArrowLeft size={15}/> Return to sign in</Link></div></AuthFrame>}
