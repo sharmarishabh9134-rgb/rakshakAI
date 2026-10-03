@@ -1,0 +1,45 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: rakshakai-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-rakshakai}
+      POSTGRES_USER: ${POSTGRES_USER:-rakshakai}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-rakshakai-local}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - rakshakai-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-rakshakai} -d ${POSTGRES_DB:-rakshakai}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: rakshakai-backend
+    restart: unless-stopped
+    environment:
+      APP_ENV: ${APP_ENV:-development}
+      JWT_SECRET: ${JWT_SECRET:-local-demo-change-this-before-sharing}
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-rakshakai}:${POSTGRES_PASSWORD:-rakshakai-local}@postgres:5432/${POSTGRES_DB:-rakshakai}
+      FRONTEND_ORIGINS: ${FRONTEND_ORIGINS:-http://localhost:3000,http://127.0.0.1:3000}
+      OCR_PROVIDER: ${OCR_PROVIDER:-tesseract}
+      TESSERACT_LANG: ${TESSERACT_LANG:-eng+hin+kan}
+    ports:
+      - "${API_PORT:-8000}:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  rakshakai-postgres-data:
