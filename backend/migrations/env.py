@@ -8,6 +8,8 @@ config=context.config
 if config.config_file_name:
     fileConfig(config.config_file_name)
 url=os.getenv('DATABASE_URL')
+if url and url.startswith('postgres://'):
+    url='postgresql://' + url[len('postgres://'):]
 if url:
     config.set_main_option('sqlalchemy.url',url.replace('%','%%'))
 target_metadata=Base.metadata

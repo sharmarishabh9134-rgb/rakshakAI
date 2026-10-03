@@ -30,6 +30,8 @@ APP_ENV = os.getenv('APP_ENV','development').lower()
 if APP_ENV == 'production' and (SECRET == 'dev-only-change-this-secret-before-deployment' or len(SECRET)<32):
     raise RuntimeError('Set a unique JWT_SECRET of at least 32 characters before starting in production.')
 DB_URL = os.getenv('DATABASE_URL', 'sqlite:///./rakshakai.db')
+if DB_URL.startswith('postgres://'):
+    DB_URL = 'postgresql://' + DB_URL[len('postgres://'):]
 if APP_ENV == 'production' and DB_URL.startswith('sqlite'):
     raise RuntimeError('Use PostgreSQL for production; SQLite is supported for local demo use.')
 engine = create_engine(DB_URL, connect_args={'check_same_thread': False} if DB_URL.startswith('sqlite') else {})
