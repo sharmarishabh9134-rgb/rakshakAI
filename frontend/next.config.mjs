@@ -1,8 +1,11 @@
 /** @type {import('next').NextConfig} */
 const development = process.env.NODE_ENV !== 'production';
-const configuredApiUrl = process.env.NEXT_PUBLIC_API_URL || (development
-  ? 'http://localhost:8000'
-  : 'https://rakshakai-backend-6c96.getvoroa.com');
+const requestedApiUrl = process.env.NEXT_PUBLIC_API_URL?.trim();
+const requestedApiHost = requestedApiUrl ? new URL(requestedApiUrl).hostname.toLowerCase() : '';
+const requestedApiIsLocal = ['localhost', 'localhost.', '127.0.0.1', '0.0.0.0', '[::1]'].includes(requestedApiHost);
+const configuredApiUrl = requestedApiUrl && (development || !requestedApiIsLocal)
+  ? requestedApiUrl
+  : development ? 'http://localhost:8000' : 'https://rakshakai-backend-6c96.getvoroa.com';
 const apiBaseUrl = configuredApiUrl.replace(/\/+$/, '').replace(/\/api$/i, '');
 const apiOrigin = new URL(apiBaseUrl).origin;
 const nextConfig = {
