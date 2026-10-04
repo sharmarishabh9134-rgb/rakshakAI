@@ -66,6 +66,9 @@ class GeminiAssistant:
             logger.warning('Gemini API returned HTTP %s for model %s.', exc.code, self.model)
             if exc.code in (401,403): raise RuntimeError('Gemini could not authenticate this API key. Check GEMINI_API_KEY.') from exc
             if exc.code == 429: raise RuntimeError('Gemini is busy or its quota is temporarily unavailable. Please try again shortly.') from exc
+            if exc.code == 400: raise RuntimeError('Gemini rejected the request (HTTP 400). Check the model and request configuration.') from exc
+            if exc.code == 404: raise RuntimeError(f'Gemini model "{self.model}" was not found or is unavailable. Check GEMINI_MODEL.') from exc
+            if exc.code >= 500: raise RuntimeError(f'Gemini is temporarily unavailable (HTTP {exc.code}). Please try again shortly.') from exc
             raise RuntimeError('Gemini could not complete the enquiry. Please try again.') from exc
         except (URLError, TimeoutError, OSError, json.JSONDecodeError) as exc:
             logger.warning('Gemini API request failed (%s) for model %s.', type(exc).__name__, self.model)
