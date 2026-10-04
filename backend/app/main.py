@@ -46,7 +46,7 @@ oauth = OAuth2PasswordBearer(tokenUrl='/api/auth/login', auto_error=False)
 app=FastAPI(title='RakshakAI API', version='0.1.0', description='Informational investor safety tools; no investment advice.')
 app.include_router(platforms_router)
 allowed_origins=['https://rakshakai-frontend-5117.getvoroa.com']+[item.strip() for item in os.getenv('FRONTEND_ORIGINS','http://localhost:3000,http://127.0.0.1:3000').split(',') if item.strip()]
-app.add_middleware(CORSMiddleware, allow_origins=allowed_origins, allow_credentials=False, allow_methods=['GET','POST','PATCH','PUT','DELETE','OPTIONS'], allow_headers=['Authorization','Content-Type'])
+
 
 RATE_BUCKETS={}
 @app.middleware('http')
@@ -613,3 +613,6 @@ def admin_remove_video(video_id:str,u=Depends(require_admin),s:Session=Depends(d
     return {'deleted':True}
 @app.get('/api/demo/examples')
 def examples(): return [{'type':'WhatsApp','synthetic':True,'text':'Guaranteed 30% monthly return. Invest today. Limited slots. Send payment immediately.'},{'type':'Telegram','synthetic':True,'text':'Official advisor: send an OTP to unlock a guaranteed return. Invite friends for a bonus.'},{'type':'URL','synthetic':True,'text':'http://secure-example.invalid/login'}]
+
+# Wrap the complete FastAPI stack so CORS headers also cover app-level error responses.
+app=CORSMiddleware(app, allow_origins=allowed_origins, allow_credentials=False, allow_methods=['GET','POST','PATCH','PUT','DELETE','OPTIONS'], allow_headers=['Authorization','Content-Type'])
