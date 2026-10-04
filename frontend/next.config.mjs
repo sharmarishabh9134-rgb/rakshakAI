@@ -5,10 +5,12 @@ const requestedApiHost = requestedApiUrl ? new URL(requestedApiUrl).hostname.toL
 const requestedApiIsLocal = ['localhost', 'localhost.', '127.0.0.1', '0.0.0.0', '[::1]'].includes(requestedApiHost);
 const configuredApiUrl = requestedApiUrl && (development || !requestedApiIsLocal)
   ? requestedApiUrl
-  : development ? 'http://localhost:8000' : 'https://rakshakai-backend-6c96.getvoroa.com';
+  : development ? 'http://localhost:8000' : 'https://rakshakai-backend-6033.getvoroa.com';
 const apiBaseUrl = configuredApiUrl.replace(/\/+$/, '').replace(/\/api$/i, '');
 const apiOrigin = new URL(apiBaseUrl).origin;
 const nextConfig = {
+  // Inject one server-configured API base for every browser component. Without
+  // this, their local-development fallback points production users at localhost.
   env: { NEXT_PUBLIC_API_URL: apiBaseUrl },
   distDir: process.env.NEXT_DIST_DIR || '.next',
   reactStrictMode: true,
