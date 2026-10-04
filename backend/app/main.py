@@ -23,7 +23,9 @@ from app.localization import ANALYSIS_COPY as EXTRA_ANALYSIS_COPY, INDICATOR_LAB
 from app.platforms import router as platforms_router
 from app.platforms import DATA_FILE as PLATFORM_DATA_FILE
 import json
+import logging
 from app.ai import GeminiAssistant, enforce_safety
+logger = logging.getLogger(__name__)
 
 SECRET = os.getenv('JWT_SECRET', 'dev-only-change-this-secret-before-deployment')
 APP_ENV = os.getenv('APP_ENV','development').lower()
@@ -49,6 +51,11 @@ allowed_origins=['https://rakshakai-frontend-5117.getvoroa.com']+[item.strip() f
 
 
 RATE_BUCKETS={}
+@app.on_event('startup')
+async def log_runtime_configuration():
+    model=os.getenv('GEMINI_MODEL','gemini-3.8-flash').strip() or 'gemini-3.8-flash'
+    logger.info('Backend ready: gemini_api_key_present=%s gemini_model=%s',bool(os.getenv('GEMINI_API_KEY','').strip()),model)
+
 @app.middleware('http')
 async def secure_request_middleware(request:Request,call_next):
     length=request.headers.get('content-length')
@@ -71,7 +78,12 @@ async def secure_request_middleware(request:Request,call_next):
             for expired in [k for k,v in RATE_BUCKETS.items() if not v or now-v[-1]>=window]: RATE_BUCKETS.pop(expired,None)
     try:
         response=await call_next(request)
-    except Exception:
+    except Exception as exc
+        error_message=str(exc)[:500]
+        api_key=os.getenv('GEMINI_API_KEY','').strip()
+        if api_key: error_message=error_message.replace(api_key,'[REDACTED]')
+        error_message=re.sub(r'AIza[0-9A-Za-z_-]{20,}','[REDACTED]',error_message)
+        logger.error('Unhandled request exception method=%s path=%s type=%s message=%s',request.method,request.url.path,type(exc).__name__,error_message)
         response=JSONResponse(status_code=500,content={'detail':'An unexpected server error occurred.','error':{'code':'internal_error','message':'An unexpected server error occurred.'}})
     response.headers['X-Content-Type-Options']='nosniff'
     response.headers['X-Frame-Options']='DENY'

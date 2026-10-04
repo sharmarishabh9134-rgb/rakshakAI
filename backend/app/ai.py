@@ -21,7 +21,7 @@ class GeminiAssistant:
     """Small server-side Gemini REST adapter; the API key never reaches clients."""
     def __init__(self):
         self.api_key = os.getenv('GEMINI_API_KEY', '').strip()
-        self.model = os.getenv('GEMINI_MODEL', 'gemini-3.8-flash').strip()
+        self.model = os.getenv('GEMINI_MODEL', 'gemini-3.8-flash').strip() or 'gemini-3.8-flash'
 
     async def answer(self, message: str, language: str, history: list[dict]) -> str:
         if not self.api_key:
@@ -63,7 +63,19 @@ class GeminiAssistant:
             return answer[:8000]
         except HTTPError as exc:
             # Do not forward provider response bodies; they can contain account or request details.
-            logger.warning('Gemini API returned HTTP %s for model %s.', exc.code, self.model)
+            provider_message = ''
+            try:
+                error_data = json.loads(exc.read(65536))
+                provider_error = error_data.get('error', {}) if isinstance(error_data, dict) else {}
+                if isinstance(provider_error, dict):
+                    provider_status = str(provider_error.get('status', ''))[:80]
+                    provider_message = str(provider_error.get('message', ''))[:400]
+            except (OSError, json.JSONDecodeError, UnicodeDecodeError):
+                pass
+            if self.api_key:
+                provider_message = provider_message.replace(self.api_key, '[REDACTED]')
+            provider_message = re.sub(r'AIza[0-9A-Za-z_-]{20,}', '[REDACTED]', provider_message)
+            logger.error('Gemini API error http_status=%s provider_status=%s model=%s provider_message=%s', exc.code, provider_status, self.model, provider_message or 'unavailable')
             if exc.code in (401,403): raise RuntimeError('Gemini could not authenticate this API key. Check GEMINI_API_KEY.') from exc
             if exc.code == 429: raise RuntimeError('Gemini is busy or its quota is temporarily unavailable. Please try again shortly.') from exc
             if exc.code == 400: raise RuntimeError('Gemini rejected the request (HTTP 400). Check the model and request configuration.') from exc
@@ -71,7 +83,10 @@ class GeminiAssistant:
             if exc.code >= 500: raise RuntimeError(f'Gemini is temporarily unavailable (HTTP {exc.code}). Please try again shortly.') from exc
             raise RuntimeError('Gemini could not complete the enquiry. Please try again.') from exc
         except (URLError, TimeoutError, OSError, json.JSONDecodeError) as exc:
-            logger.warning('Gemini API request failed (%s) for model %s.', type(exc).__name__, self.model)
+            reason = str(exc.reason if isinstance(exc, URLError) else exc)[:300]
+            if self.api_key: reason = reason.replace(self.api_key, '[REDACTED]')
+            reason = re.sub(r'AIza[0-9A-Za-z_-]{20,}', '[REDACTED]', reason)
+            logger.error('Gemini API connection error type=%s model=%s reason=%s', type(exc).__name__, self.model, reason)
             raise RuntimeError('Gemini could not be reached. Check the backend network connection and try again.') from exc
 
 def enforce_safety(output: dict) -> dict:
