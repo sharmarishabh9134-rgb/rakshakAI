@@ -78,7 +78,7 @@ async def secure_request_middleware(request:Request,call_next):
             for expired in [k for k,v in RATE_BUCKETS.items() if not v or now-v[-1]>=window]: RATE_BUCKETS.pop(expired,None)
     try:
         response=await call_next(request)
-    except Exception as exc
+    except Exception as exc:
         error_message=str(exc)[:500]
         api_key=os.getenv('GEMINI_API_KEY','').strip()
         if api_key: error_message=error_message.replace(api_key,'[REDACTED]')
