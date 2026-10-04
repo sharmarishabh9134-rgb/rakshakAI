@@ -45,7 +45,7 @@ oauth = OAuth2PasswordBearer(tokenUrl='/api/auth/login', auto_error=False)
 
 app=FastAPI(title='RakshakAI API', version='0.1.0', description='Informational investor safety tools; no investment advice.')
 app.include_router(platforms_router)
-allowed_origins=['https://rakshakai-frontend-7de3.getvoroa.com']+[item.strip() for item in os.getenv('FRONTEND_ORIGINS','http://localhost:3000,http://127.0.0.1:3000').split(',') if item.strip()]
+allowed_origins=['https://rakshakai-frontend-5117.getvoroa.com']+[item.strip() for item in os.getenv('FRONTEND_ORIGINS','http://localhost:3000,http://127.0.0.1:3000').split(',') if item.strip()]
 app.add_middleware(CORSMiddleware, allow_origins=allowed_origins, allow_credentials=False, allow_methods=['GET','POST','PATCH','PUT','DELETE','OPTIONS'], allow_headers=['Authorization','Content-Type'])
 
 RATE_BUCKETS={}
