@@ -5,6 +5,7 @@ OpenAPI documentation is served at `/docs`. Private routes require `Authorizatio
 | Area | Endpoints | Purpose |
 | --- | --- | --- |
 | Authentication | `POST /api/auth/register`, `POST /api/auth/login`, `POST /api/auth/logout`, `GET /api/users/me`, `PATCH /api/users/me/language` | Account and session operations |
+| Assistant | `POST /api/assistant/chat` | Authenticated general safety questions; Gemini is called server-side when configured, with a safe JSON fallback on provider failure |
 | Analysis | `POST /api/analyze/message`, `/url`, `/image`, `/document` | Message, local URL structure, screenshot, and document analysis |
 | History | `GET /api/analysis/history?limit=&offset=&risk=&kind=`, `GET/DELETE /api/analysis/{id}` | Paginated, owner-scoped history; delete is soft |
 | Education | `GET /api/education`, `GET /api/education/{slug}`, `POST /api/education/{slug}/quiz-attempt`, `GET /api/education/progress` | Ten maintained lessons, three-question quizzes, saved scores and progress |

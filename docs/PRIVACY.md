@@ -11,7 +11,7 @@ RAKSHAKAI is a hackathon prototype. Do not submit OTPs, UPI PINs, passwords, car
 
 ## Processing boundaries
 
-Message text and uploaded file bytes are processed in memory by the API. OCR availability depends on local configuration. URL analysis inspects the submitted URL string and does not fetch the target. The default analyzer is deterministic pattern matching; no external AI provider is called by default. Optional speech recognition is supplied by the browser and may use browser-vendor services; check the browser’s own privacy settings. A recognized transcript is submitted for analysis automatically when recognition completes.
+Message text and uploaded file bytes are processed in memory by the API. OCR availability depends on local configuration. URL analysis inspects the submitted URL string and does not fetch the target. The risk analyzer uses deterministic pattern matching. Separately, when `GEMINI_API_KEY` is configured, the conversational assistant sends the current question and recent chat context to Google Gemini to generate a reply. RakshakAI does not save those chat turns in its analysis history. Users should not submit sensitive personal or financial information to the assistant and should review the provider's current terms. Optional speech recognition is supplied by the browser and may use browser-vendor services; check the browser’s own privacy settings. A recognized transcript is submitted for analysis automatically when recognition completes.
 
 ## User controls and limitations
 

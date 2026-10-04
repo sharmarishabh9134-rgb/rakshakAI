@@ -20,7 +20,7 @@ Do not demo with real private messages, credentials, personal identifiers, or fi
 2. Target persona: a Tier-2/3 investor who needs an understandable second look.
 3. Product promise: verify before you trust; indicators with uncertainty, not verdicts.
 4. Main journey: submit, extract, identify patterns, explain, verify, learn, recover.
-5. Live prototype: message and screenshot analysis, multilingual interface, voice playback.
+5. Live prototype: message and screenshot analysis, multilingual interface, voice playback, and the Gemini safety assistant when its backend key is configured.
 6. Trust boundaries: no investment advice, no fabricated verification, no private-channel scraping.
 7. Recovery: preserve evidence and reach official cybercrime, regulator, and emergency channels.
 8. Technical architecture: Next.js client, FastAPI service, SQL database, modular OCR and AI adapters.
@@ -29,4 +29,4 @@ Do not demo with real private messages, credentials, personal identifiers, or fi
 
 ## Demonstrated vs planned
 
-Pattern analysis is local and heuristic. It does not check SEBI registration, discover the owner of a URL, verify a live claim, classify content with a trained model, or confirm fraud. External AI, OCR, and messaging integrations are adapter/configuration dependent. Password-reset delivery is not configured in the demo. These limits must be said aloud during judging.
+Pattern analysis is local and heuristic. It does not check SEBI registration, discover the owner of a URL, verify a live claim, classify content with a trained model, or confirm fraud. The conversational assistant is a separate Gemini-backed feature and requires a backend API key; it provides general information and may be unavailable. OCR depends on local Tesseract configuration. WhatsApp and Telegram screens are examples, not active messaging integrations. Password-reset delivery is not configured. Explain these limits during judging.
