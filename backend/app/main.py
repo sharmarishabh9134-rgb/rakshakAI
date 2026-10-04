@@ -24,7 +24,8 @@ from app.platforms import router as platforms_router
 from app.platforms import DATA_FILE as PLATFORM_DATA_FILE
 import json
 import logging
-from app.ai import GeminiAssistant, enforce_safety
+from app.ai import DEFAULT_GEMINI_MODEL, SAFE_FALLBACK, GeminiAssistant, enforce_safety
+
 logger = logging.getLogger(__name__)
 
 SECRET = os.getenv('JWT_SECRET', 'dev-only-change-this-secret-before-deployment')
@@ -49,13 +50,12 @@ app=FastAPI(title='RakshakAI API', version='0.1.0', description='Informational i
 app.include_router(platforms_router)
 allowed_origins=['https://rakshakai-frontend-5117.getvoroa.com']+[item.strip() for item in os.getenv('FRONTEND_ORIGINS','http://localhost:3000,http://127.0.0.1:3000').split(',') if item.strip()]
 
-
-RATE_BUCKETS={}
 @app.on_event('startup')
 async def log_runtime_configuration():
-    model=os.getenv('GEMINI_MODEL','gemini-3.8-flash').strip() or 'gemini-3.8-flash'
+    model=os.getenv('GEMINI_MODEL',DEFAULT_GEMINI_MODEL).strip() or DEFAULT_GEMINI_MODEL
     logger.info('Backend ready: gemini_api_key_present=%s gemini_model=%s',bool(os.getenv('GEMINI_API_KEY','').strip()),model)
 
+RATE_BUCKETS={}
 @app.middleware('http')
 async def secure_request_middleware(request:Request,call_next):
     length=request.headers.get('content-length')
@@ -256,11 +256,14 @@ async def assistant_chat(data:AssistantChatInput,u=Depends(current_user)):
     assistant=GeminiAssistant()
     try:
         answer=await assistant.answer(data.message.strip(),language,[turn.model_dump() for turn in data.history])
-    except RuntimeError as exc:
-        message=str(exc)
-        raise HTTPException(503,detail=message) from exc
+    except Exception as exc:
+        # Keep the chat response shape stable even if an unexpected provider error escapes.
+        logger.error('Assistant provider request failed type=%s',type(exc).__name__)
+        answer=SAFE_FALLBACK
+        assistant.used_fallback=True
+        assistant.failure_category='server'
     safe=enforce_safety({'answer':answer})
-    return {'answer':safe['answer'],'language':language,'provider':'gemini','disclaimer':'RakshakAI provides general information, not personalized financial, legal, or tax advice. Do not share OTPs, PINs, passwords, or bank credentials.'}
+    return {'answer':safe['answer'],'language':language,'provider':'fallback' if assistant.used_fallback else 'gemini','provider_status':assistant.failure_category or 'ok','disclaimer':'RakshakAI provides general information, not personalized financial, legal, or tax advice. Do not share OTPs, PINs, passwords, or bank credentials.'}
 
 def optional_analysis_user(token: str|None=Depends(oauth), s: Session=Depends(db)):
     """Use a valid session for history; let analysis continue without one."""
@@ -366,7 +369,7 @@ def analyze_text(text, language='en'):
     return {'language':language,'risk':risk,'indicators':found,'findings':findings,'problem_summary':copy['explanation'].format(count=len(found)),'explanation':copy['explanation'].format(count=len(found)),'next_steps':next_steps,'verification_steps':next_steps,'safe_next_actions':next_steps[:2],'disclaimer':copy['disclaimer']}
 
 @app.get('/api/health')
-def health(): return {'status':'ok','mode':'demo','raw_upload_retention':'none'}
+def health(): return {'status':'ok','mode':'demo','raw_upload_retention':'none','gemini':{'configured':bool(os.getenv('GEMINI_API_KEY','').strip()),'model':os.getenv('GEMINI_MODEL',DEFAULT_GEMINI_MODEL).strip() or DEFAULT_GEMINI_MODEL}}
 @app.get('/')
 def api_home(): return {'service':'RakshakAI API','status':'ok','frontend':'http://localhost:3000','docs':'/docs','health':'/api/health'}
 @app.post('/api/auth/register')
