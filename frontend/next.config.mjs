@@ -1,7 +1,12 @@
 /** @type {import('next').NextConfig} */
-const apiOrigin = new URL(process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000').origin;
 const development = process.env.NODE_ENV !== 'production';
+const configuredApiUrl = process.env.NEXT_PUBLIC_API_URL || (development
+  ? 'http://localhost:8000'
+  : 'https://rakshakai-backend-6c96.getvoroa.com');
+const apiBaseUrl = configuredApiUrl.replace(/\/+$/, '').replace(/\/api$/i, '');
+const apiOrigin = new URL(apiBaseUrl).origin;
 const nextConfig = {
+  env: { NEXT_PUBLIC_API_URL: apiBaseUrl },
   distDir: process.env.NEXT_DIST_DIR || '.next',
   reactStrictMode: true,
   async headers() {
