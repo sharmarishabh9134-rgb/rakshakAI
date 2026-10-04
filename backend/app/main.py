@@ -246,9 +246,7 @@ async def assistant_chat(data:AssistantChatInput,u=Depends(current_user)):
         answer=await assistant.answer(data.message.strip(),language,[turn.model_dump() for turn in data.history])
     except RuntimeError as exc:
         message=str(exc)
-        if message.startswith('Gemini is not configured'):
-            raise HTTPException(503,detail=message) from exc
-        raise HTTPException(502,detail=message) from exc
+        raise HTTPException(503,detail=message) from exc
     safe=enforce_safety({'answer':answer})
     return {'answer':safe['answer'],'language':language,'provider':'gemini','disclaimer':'RakshakAI provides general information, not personalized financial, legal, or tax advice. Do not share OTPs, PINs, passwords, or bank credentials.'}
 
