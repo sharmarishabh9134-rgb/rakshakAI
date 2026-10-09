@@ -1,4 +1,4 @@
-# RakshakAI
+﻿# RakshakAI
 
 RakshakAI is an investor-safety prototype for reviewing suspicious messages, URLs, screenshots, and documents. It provides informational risk indicators and verification guidance; it does not determine whether something is fraud or give investment advice.
 
@@ -29,7 +29,62 @@ Set `NEXT_PUBLIC_API_URL=http://127.0.0.1:8000` in `frontend/.env.local` if the 
 
 ### Gemini enquiry assistant
 
-The dashboard assistant uses Google’s Gemini `generateContent` REST API from the backend. Set `GEMINI_API_KEY` in the backend process environment and optionally set `GEMINI_MODEL` (default `gemini-3.8-flash`), then restart the API. These variables can be configured in Voroa’s backend service environment. Never set the key in frontend variables. The API retries transient quota/server/network failures with bounded delays and returns a safe, user-friendly fallback if Gemini is unavailable. `/api/health` reports whether a key is configured and which model is selected; it never returns the key. Chat turns remain in browser memory and are not added to RakshakAI analysis history.
+The dashboard assistant uses Google's Gemini `generateContent` REST API from the backend. Set `GEMINI_API_KEY` in the backend process environment and optionally set `GEMINI_MODEL` (default `gemini-3.8-flash`), then restart the API. Never set the key in frontend variables. The API retries transient quota/server/network failures with bounded delays and returns a safe, user-friendly fallback if Gemini is unavailable. `/api/health` reports whether a key is configured and which model is selected; it never returns the key. Chat turns remain in browser memory and are not added to RakshakAI analysis history.
+
+## Repository structure
+
+```
+rakshakAI/
+|-- backend/                  # FastAPI Python API
+|   |-- app/                  # Application code (main.py, models.py, ai.py, ...)
+|   |-- data/                 # Static data files (official_platforms.json, ...)
+|   |-- migrations/           # Alembic database migrations
+|   |-- tests/                # pytest test suite
+|   |-- .env.example          # copy to .env and fill in secrets
+|   |-- Dockerfile
+|   +-- requirements.txt
+|-- frontend/                 # Next.js 14 TypeScript interface
+|   |-- src/app/              # Page routes (dashboard, analyze, education, ...)
+|   |-- src/components/       # Shared React components
+|   |-- locales/              # i18n strings (en, hi, kn, ml, mr, te)
+|   |-- .env.example          # copy to .env.local and fill in values
+|   |-- next.config.mjs
+|   +-- package.json
+|-- docs/                     # Architecture, API, Security, Deployment docs
+|-- .gitignore
+|-- compose.yaml              # Docker Compose: postgres + backend
+|-- LICENSE
++-- README.md
+```
+
+## Environment variables
+
+### Backend (`backend/.env.example` -> `backend/.env`)
+
+| Variable | Required | Default | Description |
+|---|---|---|---|
+| `APP_ENV` | No | `development` | `development` or `production` |
+| `JWT_SECRET` | **Yes (prod)** | insecure dev default | 32+ char random secret for JWT signing |
+| `DATABASE_URL` | No | SQLite `rakshakai.db` | PostgreSQL URL for production |
+| `FRONTEND_ORIGINS` | No | `http://localhost:3000` | Comma-separated allowed CORS origins |
+| `GEMINI_API_KEY` | No | _(blank - AI disabled)_ | Google Gemini API key |
+| `GEMINI_MODEL` | No | `gemini-3.8-flash` | Gemini model name |
+| `OCR_PROVIDER` | No | _(disabled)_ | Set to `tesseract` to enable OCR |
+| `TESSERACT_LANG` | No | `eng` | Tesseract language packs (e.g. `eng+hin+kan`) |
+| `TESSERACT_CMD` | No | system PATH | Path to tesseract binary |
+| `POSTGRES_DB` | No | `rakshakai` | Database name (compose only) |
+| `POSTGRES_USER` | No | `rakshakai` | Database user (compose only) |
+| `POSTGRES_PASSWORD` | **Yes (prod)** | insecure dev default | Database password (compose only) |
+
+### Frontend (`frontend/.env.example` -> `frontend/.env.local`)
+
+| Variable | Required | Default | Description |
+|---|---|---|---|
+| `NEXT_PUBLIC_API_URL` | No | `http://localhost:8000` (dev) | Backend API base URL (no trailing slash) |
+| `NEXT_DIST_DIR` | No | `.next` | Override Next.js build output directory |
+
+> **Never commit `.env` or `.env.local` files.** They are excluded by `.gitignore`.
+> Copy `backend/.env.example` -> `backend/.env` and `frontend/.env.example` -> `frontend/.env.local`, then fill in real values.
 
 ## Included
 

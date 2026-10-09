@@ -36,3 +36,28 @@ Thumbs.db
 
 # Logs
 *.log
+
+# Build / dist output
+build/
+dist/
+
+# Test & coverage
+coverage/
+.coverage
+htmlcov/
+.pytest_cache/
+junit*.xml
+
+# ML model artifacts (tracked via Git LFS or object storage instead)
+*.pkl
+*.joblib
+*.h5
+*.onnx
+*.pt
+*.pth
+
+# Docker build cache
+.docker/
+
+# Alembic SQLite temp files
+alembic/versions/__pycache__/
